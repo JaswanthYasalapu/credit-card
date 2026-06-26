@@ -17,10 +17,9 @@ if not st.session_state["logged_in"]:
         submit_button = st.form_submit_button("Login")
         
         if submit_button:
-            # Matches exactly what you want to type in the fields
             if username_input == "jaswanth" and password_input == "Lucky@6125":
                 st.session_state["logged_in"] = True
-                st.rerun() # Refresh the page to load the dashboard
+                st.rerun()  # Forces Streamlit to instantly clear the login screen
             else:
                 st.error("Username or password incorrect. Please try again.")
 
@@ -45,7 +44,10 @@ if st.session_state["logged_in"]:
     st.title("💳 Credit Card Analytics Dashboard")
     st.write("Welcome to your secured live metrics engine.")
     
-    # [Paste all your charts, metrics, and data processing lines directly here]
+    # ---- PASTE ALL YOUR REMAINING CHARTS/GRAPH CODE HERE ----
+    # Example:
+    # df = pd.read_csv("data.csv")
+    # st.line_chart(df)
     
     # =========================================================================
 
