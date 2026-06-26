@@ -121,7 +121,6 @@ if st.session_state.get("authentication_status"):
     # =========================================================================
 
 elif st.session_state.get("authentication_status") is False:
-    # Access Denied: Incorrect password entered
-    st.error('Username or password incorrect. Please try again.')
+    
 
 
