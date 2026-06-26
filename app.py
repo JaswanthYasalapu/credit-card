@@ -4,25 +4,30 @@ import streamlit_authenticator as stauth
 # --- 1. SET UP PAGE CONFIG ---
 st.set_page_config(page_title="Credit Card Dashboard", page_icon="💳", layout="wide")
 
-# --- 2. LOAD SECURE CREDENTIALS FROM STREAMLIT SECRETS ---
+# --- 2. LOAD SECURE CREDENTIALS AND INITIALIZE AUTHENTICATOR ---
 try:
-    # Fetch credentials dictionary from secrets
+    # 1. Fetch credentials dictionary from your Streamlit Cloud secrets
     secrets_creds = st.secrets["credentials"].to_dict()
     
-    # Reconstruct the complete config dictionary the authenticator expects
+    # 2. Build the precise nested dictionary format the library now requires
     config = {
         "credentials": secrets_creds,
         "cookie": {
             "expiry_days": 30,
             "key": "secure_cookie_signing_key_2026",
             "name": "credit_card_dashboard_session"
-        },
-        "pre-authorized": {"emails": []}
+        }
     }
+    
+    # 3. Pass the SINGLE config dict directly into the Authenticate class
+    authenticator = stauth.Authenticate(config)
+
 except Exception as e:
     st.error(f"Secrets configuration error: {e}")
     st.stop()
 
+# --- 3. RENDER LOGIN FORM ---
+authenticator.login(location='main')
 # --- 3. INITIALIZE AUTHENTICATOR ---
 # We pass the newly constructed config dictionary directly using unpacking
 authenticator = stauth.Authenticate(
