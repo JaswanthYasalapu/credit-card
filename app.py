@@ -4,52 +4,31 @@ import streamlit_authenticator as stauth
 # --- 1. SET UP PAGE CONFIG ---
 st.set_page_config(page_title="Credit Card Dashboard", page_icon="💳", layout="wide")
 
-# --- 2. LOAD SECURE CREDENTIALS AND INITIALIZE AUTHENTICATOR ---
-try:
-    # Convert secrets into a standard Python dictionary
-    secrets_dict = st.secrets.to_dict()
-    
-    if "credentials" in secrets_dict:
-        credentials_data = secrets_dict["credentials"]
-    else:
-        st.error("Missing [credentials] section in your Streamlit Secrets panel.")
-        st.stop()
-        
-    # Build the full configuration dictionary wrapper explicitly
-    config = {
-        "credentials": credentials_data,
-        "cookie": {
-            "expiry_days": 30,
-            "key": "secure_cookie_signing_key_2026",
-            "name": "credit_card_dashboard_session"
+# --- 2. MANUALLY BUILD THE SECURE CONFIGURATION DICTIONARY ---
+# This prevents key matching and formatting errors from Streamlit secrets
+credentials_data = {
+    "usernames": {
+        "jaswanth": {
+            "email": st.secrets.get("email", "jaswanth@example.com"),
+            "name": st.secrets.get("name", "Jaswanth Yasalap"),
+            "password": st.secrets.get("password", "$2b$12$.h5mZ85f/BWhU.O0G.aT6Oy7V6wB78kU7w19H2B78gX/8kM1YvU8W")
         }
     }
-    
-    # Initialize the Authenticate instance
-    authenticator = stauth.Authenticate(config)
+}
 
-except Exception as e:
-    st.error(f"Secrets configuration error: {e}")
-    st.stop()
+config = {
+    "credentials": credentials_data,
+    "cookie": {
+        "expiry_days": 30,
+        "key": "secure_cookie_signing_key_2026",
+        "name": "credit_card_dashboard_session"
+    }
+}
 
-# --- 3. RENDER LOGIN FORM ---
-authenticator.login(location='main')
 # --- 3. INITIALIZE AUTHENTICATOR ---
-# We pass the newly constructed config dictionary directly using unpacking
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days'],
-    config['pre-authorized']
-)
+authenticator = stauth.Authenticate(config)
 
 # --- 4. RENDER LOGIN FORM ---
-authenticator.login(location='main')
-
-# --- 4. RENDER LOGIN FORM ---
-# --- 4. RENDER LOGIN FORM (FIXED) ---
-# Just call the function by itself. Do not assign it to variables.
 authenticator.login(location='main')
 
 # --- 5. CHECK AUTHENTICATION STATUS FROM SESSION STATE ---
