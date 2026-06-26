@@ -21,7 +21,10 @@ authenticator = stauth.Authenticate(
 )
 
 # --- 4. RENDER LOGIN FORM ---
-name, authentication_status, username = authenticator.login('Login to Credit Card Dashboard', 'main')
+name, authentication_status, username = authenticator.login(
+    location='main', 
+    title='Login to Credit Card Dashboard'
+)
 
 # --- 5. CHECK AUTHENTICATION STATUS ---
 if authentication_status:
