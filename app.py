@@ -67,7 +67,7 @@ elif st.session_state["authentication_status"] is None:
     st.warning('Please enter your username and password to proceed.')
 
 # --- 5. CHECK AUTHENTICATION STATUS ---
-if authentication_status:
+if st.session_state.get("authentication_status"):
     # -------------------------------------------------------------------------
     # ACCESS GRANTED: Everything inside this block runs ONLY when logged in
     # -------------------------------------------------------------------------
