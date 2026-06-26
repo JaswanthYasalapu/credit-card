@@ -124,6 +124,4 @@ elif st.session_state.get("authentication_status") is False:
     # Access Denied: Incorrect password entered
     st.error('Username or password incorrect. Please try again.')
 
-elif st.session_state.get("authentication_status") is None:
-    # Default State: User has not attempted logging in yet
-    st.warning('Please enter your username and password to proceed.')
+
