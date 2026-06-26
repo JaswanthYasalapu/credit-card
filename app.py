@@ -94,10 +94,10 @@ if st.session_state.get("authentication_status"):
     # ⬆️ END OF YOUR ORIGINAL DASHBOARD CODE ⬆️
     # =========================================================================
 
-elif authentication_status == False:
+elif st.session_state.get("authentication_status") is False:
     # Access Denied: Incorrect password entered
     st.error('Username or password incorrect. Please try again.')
 
-elif authentication_status == None:
+elif st.session_state.get("authentication_status") is None:
     # Default State: User has not attempted logging in yet
     st.warning('Please enter your username and password to proceed.')
