@@ -4,9 +4,8 @@ import streamlit_authenticator as stauth
 # --- 1. SET UP PAGE CONFIG ---
 st.set_page_config(page_title="Credit Card Dashboard", page_icon="💳", layout="wide")
 
-# --- 2. MANUALLY BUILD THE SECURE CONFIGURATION DICTIONARY ---
-# This prevents key matching and formatting errors from Streamlit secrets
-credentials_data = {
+# --- 2. MANUALLY BUILD THE SECURE CREDENTIALS DICTIONARY ---
+credentials = {
     "usernames": {
         "jaswanth": {
             "email": st.secrets.get("email", "jaswanth@example.com"),
@@ -16,17 +15,14 @@ credentials_data = {
     }
 }
 
-config = {
-    "credentials": credentials_data,
-    "cookie": {
-        "expiry_days": 30,
-        "key": "secure_cookie_signing_key_2026",
-        "name": "credit_card_dashboard_session"
-    }
-}
-
 # --- 3. INITIALIZE AUTHENTICATOR ---
-authenticator = stauth.Authenticate(config)
+# We pass credentials, cookie name, cookie key, and cookie expiry directly
+authenticator = stauth.Authenticate(
+    credentials=credentials,
+    cookie_name="credit_card_dashboard_session",
+    key="secure_cookie_signing_key_2026",
+    cookie_expiry_days=30
+)
 
 # --- 4. RENDER LOGIN FORM ---
 authenticator.login(location='main')
