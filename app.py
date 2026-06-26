@@ -34,13 +34,6 @@ except Exception as e:
 
 # --- 3. RENDER LOGIN FORM ---
 authenticator.login(location='main')
-
-except Exception as e:
-    st.error(f"Secrets configuration error: {e}")
-    st.stop()
-
-# --- 3. RENDER LOGIN FORM ---
-authenticator.login(location='main')
 # --- 3. INITIALIZE AUTHENTICATOR ---
 # We pass the newly constructed config dictionary directly using unpacking
 authenticator = stauth.Authenticate(
