@@ -1,126 +1,76 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
 
-# --- 1. SET UP PAGE CONFIG ---
-st.set_page_config(page_title="Credit Card Dashboard", page_icon="💳", layout="wide")
+# 1. Page Config
+st.set_page_config(page_title="AI Fraud Detector", page_icon="🤖", layout="wide")
+st.title("🤖 AI-Powered Credit Card Fraud Detection")
+st.markdown("This app uses a live-trained Random Forest Machine Learning model to evaluate transaction risk.")
 
-# --- 2. INITIALIZE SESSION STATE FOR LOGIN ---
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
+# 2. Background ML Training (Cached so it only runs once)
+@st.cache_resource
+def train_fraud_model():
+    # Generating a synthetic dataset representing 10,000 transactions
+    np.random.seed(42)
+    n_samples = 10000
+    
+    # Features: [Amount, Distance, Is_Online, Is_High_Risk_Merchant]
+    X_legit = np.random.multivariate_normal([50, 5, 0.2, 0.1], [[400, 0, 0, 0], [0, 25, 0, 0], [0, 0, 0.1, 0], [0, 0, 0, 0.05]], int(n_samples*0.95))
+    X_fraud = np.random.multivariate_normal([800, 300, 0.8, 0.7], [[50000, 0, 0, 0], [0, 10000, 0, 0], [0, 0, 0.05, 0], [0, 0, 0, 0.1]], int(n_samples*0.05))
+    
+    X = np.vstack((X_legit, X_fraud))
+    # Clip values to ensure realistic bounds (e.g., distances and amounts can't be negative)
+    X = np.clip(X, 0, None)
+    # Ensure binary columns are strictly 0 or 1
+    X[:, 2] = np.where(X[:, 2] > 0.5, 1, 0)
+    X[:, 3] = np.where(X[:, 3] > 0.5, 1, 0)
+    
+    # Labels: 0 = Legit, 1 = Fraud
+    y = np.array([0] * len(X_legit) + [1] * len(X_fraud))
+    
+    # Train Model
+    model = RandomForestClassifier(n_estimators=50, random_state=42)
+    model.fit(X, y)
+    return model
 
-# --- 3. RENDER LOGIN FORM IF NOT LOGGED IN ---
-if not st.session_state["logged_in"]:
-    st.title("🔒 Security Gateway")
-    
-    with st.form("login_form"):
-        username_input = st.text_input("Username")
-        password_input = st.text_input("Password", type="password")
-        submit_button = st.form_submit_button("Login")
-        
-        if submit_button:
-            if username_input == "jaswanth" and password_input == "Lucky@6125":
-                st.session_state["logged_in"] = True
-                st.rerun()  # Forces Streamlit to instantly clear the login screen
-            else:
-                st.error("Username or password incorrect. Please try again.")
+# Initialize the model
+model = train_fraud_model()
 
-# --- 4. CHECK AUTHENTICATION STATUS ---
-if st.session_state["logged_in"]:
-    # -------------------------------------------------------------------------
-    # ACCESS GRANTED: Everything inside this block runs ONLY when logged in
-    # -------------------------------------------------------------------------
-    
-    # Simple native logout button in the sidebar
-    if st.sidebar.button("Logout"):
-        st.session_state["logged_in"] = False
-        st.rerun()
-        
-    st.sidebar.success("Logged in as: Jaswanth Yasalap")
-    
-    # =========================================================================
-    # ⬇️ YOUR ORIGINAL DASHBOARD CODE DIRECTLY BELOW THIS LINE ⬇️
-    # ⚠️ CRITICAL: Ensure every line you paste below is INDENTED by 4 spaces!
-    # =========================================================================
-    
-    st.title("💳 Credit Card Analytics Dashboard")
-    st.write("Welcome to your secured live metrics engine.")
-    
-    # ---- PASTE ALL YOUR REMAINING CHARTS/GRAPH CODE HERE ----
-    # Example:
-    # df = pd.read_csv("data.csv")
-    # st.line_chart(df)
-    
-    # =========================================================================
+st.success("🤖 Machine Learning Model trained successfully and active!")
 
-# --- 5. CHECK AUTHENTICATION STATUS FROM SESSION STATE ---
-if st.session_state.get("authentication_status"):
-    # -------------------------------------------------------------------------
-    # ACCESS GRANTED: Everything inside this block runs ONLY when logged in
-    # -------------------------------------------------------------------------
-    
-    # Render the logout button in the sidebar
-    authenticator.logout('Logout', 'sidebar')
-    
-    st.sidebar.success(f"Logged in as: {st.session_state.get('name')}")
-    
-    # =========================================================================
-    # ⬇️ PASTE YOUR ORIGINAL DASHBOARD CODE DIRECTLY BELOW THIS LINE ⬇️
-    # ⚠️ CRITICAL: Ensure every line you paste below is INDENTED by 4 spaces!
-    # =========================================================================
-    
-    st.title("💳 Credit Card Analytics Dashboard")
-    st.write("Welcome to your secured live metrics engine.")
-    
-    # Your dashboard charts, sliders, and dataframes go here...
-    
-    # =========================================================================
-    # ⬆️ END OF YOUR ORIGINAL DASHBOARD CODE ⬆️
-    # =========================================================================
+st.markdown("---")
 
-elif st.session_state.get("authentication_status") is False:
-    # Access Denied: Incorrect password entered
-    st.error('Username or password incorrect. Please try again.')
+# 3. User Inputs for Testing
+st.subheader("🕵️‍♂️ Live Transaction Input")
+col1, col2 = st.columns(2)
 
-elif st.session_state.get("authentication_status") is None:
-    # Default State: User has not attempted logging in yet
-    st.warning('Please enter your username and password to proceed.')
+with col1:
+    amount = st.slider("Transaction Amount ($)", 1.0, 5000.0, 120.0)
+    distance = st.slider("Distance from Home (miles)", 0.0, 1000.0, 12.0)
 
-elif st.session_state["authentication_status"] is False:
-    # Access Denied: Incorrect password entered
-    st.error('Username or password incorrect. Please try again.')
+with col2:
+    online = st.selectbox("Is this an Online transaction?", ["No", "Yes"])
+    high_risk = st.selectbox("Is the Merchant flagged as High-Risk?", ["No", "Yes"])
 
-elif st.session_state["authentication_status"] is None:
-    # Default State: User has not attempted logging in yet
-    st.warning('Please enter your username and password to proceed.')
+# Convert text options to numbers for the model (0 or 1)
+online_val = 1 if online == "Yes" else 0
+high_risk_val = 1 if high_risk == "Yes" else 0
 
-# --- 5. CHECK AUTHENTICATION STATUS ---
-if st.session_state.get("authentication_status"):
-    # -------------------------------------------------------------------------
-    # ACCESS GRANTED: Everything inside this block runs ONLY when logged in
-    # -------------------------------------------------------------------------
+# 4. Predict Button
+if st.button("Run AI Detection", type="primary"):
+    # Structure the inputs exactly like the model's training data
+    features = np.array([[amount, distance, online_val, high_risk_val]])
     
-    # Render the logout button in the sidebar
-    authenticator.logout('Logout', 'sidebar')
+    # Get predictions
+    prediction = model.predict(features)[0]
+    probabilities = model.predict_proba(features)[0] # [Prob of legit, Prob of fraud]
+    fraud_probability = int(probabilities[1] * 100)
     
-    st.sidebar.success(f"Logged in as: {name}")
+    st.markdown("### AI Assessment Analysis")
     
-    # =========================================================================
-    # ⬇️ PASTE YOUR ORIGINAL DASHBOARD CODE DIRECTLY BELOW THIS LINE ⬇️
-    # ⚠️ CRITICAL: Ensure every line you paste below is INDENTED by 4 spaces!
-    # =========================================================================
-    
-    st.title("💳 Credit Card Analytics Dashboard")
-    st.write("Welcome to your secured live metrics engine.")
-    
-    # Example placeholder of your dashboard logic:
-    # st.metric(label="Total Spend", value="$4,500")
-    # fig = your_plotting_function()
-    # st.plotly_chart(fig)
-    
-    # =========================================================================
-    # ⬆️ END OF YOUR ORIGINAL DASHBOARD CODE ⬆️
-    # =========================================================================
-
-elif st.session_state.get("authentication_status") is False:
-    
-
-
+    if prediction == 0:
+        st.success(f"✅ **Approved.** The AI is confident this transaction is legitimate. (Fraud Risk: {fraud_probability}%)")
+        st.balloons()
+    else:
+        st.error(f"🚨 **Blocked!** The AI has flagged this transaction as highly suspicious. (Fraud Risk: {fraud_probability}%)")
