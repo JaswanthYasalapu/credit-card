@@ -21,13 +21,12 @@ authenticator = stauth.Authenticate(
 )
 
 # --- 4. RENDER LOGIN FORM ---
-name, authentication_status, username = authenticator.login(location='main')
-# --- 4. RENDER LOGIN FORM ---
-# In v0.3+, this function renders the form and returns None
+# --- 4. RENDER LOGIN FORM (FIXED) ---
+# Just call the function by itself. Do not assign it to variables.
 authenticator.login(location='main')
 
 # --- 5. CHECK AUTHENTICATION STATUS FROM SESSION STATE ---
-if st.session_state["authentication_status"]:
+if st.session_state.get("authentication_status"):
     # -------------------------------------------------------------------------
     # ACCESS GRANTED: Everything inside this block runs ONLY when logged in
     # -------------------------------------------------------------------------
@@ -35,7 +34,7 @@ if st.session_state["authentication_status"]:
     # Render the logout button in the sidebar
     authenticator.logout('Logout', 'sidebar')
     
-    st.sidebar.success(f"Logged in as: {st.session_state['name']}")
+    st.sidebar.success(f"Logged in as: {st.session_state.get('name')}")
     
     # =========================================================================
     # ⬇️ PASTE YOUR ORIGINAL DASHBOARD CODE DIRECTLY BELOW THIS LINE ⬇️
@@ -50,6 +49,14 @@ if st.session_state["authentication_status"]:
     # =========================================================================
     # ⬆️ END OF YOUR ORIGINAL DASHBOARD CODE ⬆️
     # =========================================================================
+
+elif st.session_state.get("authentication_status") is False:
+    # Access Denied: Incorrect password entered
+    st.error('Username or password incorrect. Please try again.')
+
+elif st.session_state.get("authentication_status") is None:
+    # Default State: User has not attempted logging in yet
+    st.warning('Please enter your username and password to proceed.')
 
 elif st.session_state["authentication_status"] is False:
     # Access Denied: Incorrect password entered
