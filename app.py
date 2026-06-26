@@ -6,17 +6,16 @@ st.set_page_config(page_title="Credit Card Dashboard", page_icon="💳", layout=
 
 # --- 2. LOAD SECURE CREDENTIALS AND INITIALIZE AUTHENTICATOR ---
 try:
-    # Safely convert the stream secrets into a pure python dictionary
+    # Convert secrets into a standard Python dictionary
     secrets_dict = st.secrets.to_dict()
     
-    # Extract the nested credentials key
     if "credentials" in secrets_dict:
         credentials_data = secrets_dict["credentials"]
     else:
         st.error("Missing [credentials] section in your Streamlit Secrets panel.")
         st.stop()
         
-    # Build the full configuration dictionary wrapper
+    # Build the full configuration dictionary wrapper explicitly
     config = {
         "credentials": credentials_data,
         "cookie": {
