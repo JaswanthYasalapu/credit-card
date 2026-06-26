@@ -22,7 +22,6 @@ authenticator = stauth.Authenticate(
 
 # --- 4. RENDER LOGIN FORM ---
 name, authentication_status, username = authenticator.login(location='main')
-)
 
 # --- 5. CHECK AUTHENTICATION STATUS ---
 if authentication_status:
